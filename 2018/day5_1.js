@@ -1,26 +1,19 @@
 const rawInput = require('./utils').readInput(5);
 
 const polarity = (char) => char === char.toUpperCase();
-const samePolarity = (c1, c2) => polarity(c1) === polarity(c2);
-const sameType = (c1, c2) => c1.toUpperCase() === c2.toUpperCase();
+const areReacting = (c1, c2) => c1.toUpperCase() === c2.toUpperCase()
+    && polarity(c1) !== polarity(c2);
 
 const solve = (input) => {
-    input = input.split('');
+    const stack = [];
 
-    for (let i = 0; i < input.length - 1; i++) {
-        const c1 = input[i], c2 = input[i + 1];
-        console.log(`looking at ${c1}${c2}(${i}, ${i + 1})`);
-
-        if (sameType(c1, c2) && !samePolarity(c1, c2)) {
-            input.splice(i, 2);
-
-            console.log(`  removed ${c1}${c2}(${i}, ${i + 1})`)
-
-            i -= i < 2 ? 1 : 2;
-        }
+    for (let i = 0; i < input.length; i++) {
+        if (stack.length > 0 && areReacting(input[i], stack[stack.length - 1]))
+            stack.pop();
+        else stack.push(input[i]);
     }
 
-    return input.join('').length;
+    return stack.length;
 };
 
-console.log(solve('aA'));
+console.log(solve(rawInput));
