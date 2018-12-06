@@ -26,11 +26,8 @@ const solve = (input) => {
         if (body === 'wakes up') {
             const sleep = events[i - 1].date;
 
-            for (let j = sleep.getMinutes(); j < date.getMinutes(); j++) {
-                if (guards[curGuard][j])
-                    guards[curGuard][j]++
-                else guards[curGuard][j] = 1;
-            }
+            for (let j = sleep.getMinutes(); j < date.getMinutes(); j++)
+                guards[curGuard][j] = guards[curGuard][j] + 1 || 1;
         }
     }
 
