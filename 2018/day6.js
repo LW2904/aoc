@@ -22,6 +22,7 @@ const solve = (input) => {
     
     const rect = getRectangle(coords);
 
+    let region = 0;
     const points = [];
     for (let y = rect[0][1]; y <= rect[1][1]; y++) {
         points.push([]);
@@ -35,6 +36,14 @@ const solve = (input) => {
                 point.index = dists[0].index;
 
             points[points.length - 1].push(point);
+
+            let total = 0;
+            for (const dist of dists) {
+                total += dist.dist;
+            }
+
+            if (total < 10000)
+                region++;
         }
     }
 
@@ -59,7 +68,7 @@ const solve = (input) => {
         }
     }
 
-    return areas.sort((a, b) => b - a)[0];
+    return { part1: areas.sort((a, b) => b - a)[0], part2: region };
 };
 
 console.log(solve(rawInput));
