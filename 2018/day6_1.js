@@ -1,78 +1,68 @@
 const rawInput = require('./utils').readInput(6);
 const rawExample = require('./utils').readExample(6);
 
-const getDistance = (c1, c2) => Math.abs(c2.x - c1.x) + Math.abs(c2.y - c1.y);
-const filterInfinite = (coords, min, max) => coords.filter((coord) => (
-        !(coord.x >= max.x || coord.y >= max.y) &&
-        !(coord.x <= min.x || coord.y <= min.y)
-));
+const getDistance = (c1, c2) => Math.abs(c2[0] - c1[0])
+    + Math.abs(c2[1] - c1[1]);
+
+const getRectangle = (coords) => {
+    const x = coords.map((coord) => coord[0]).sort((a, b) => a - b);
+    const y = coords.map((coord) => coord[1]).sort((a, b) => a - b);
+
+    return [ [ x[0], y[0] ], [ x[x.length - 1], y[y.length - 1] ] ];
+};
+
+const getDistances = (point, coords) => coords.map((coord, index) => ({
+        index,
+        dist: getDistance(point, coord),
+    })).sort((a, b) => a.dist - b.dist);
 
 const solve = (input) => {
     const coords = input.split('\n')
-        .map((line) => line.split(', ').reduce((acc, cur, i) => {
-            acc[i % 2 ? 'y' : 'x'] = parseInt(cur, 10);
-            return acc;
-        }, {}));
+        .map((line) => line.split(', ').map((coord) => parseInt(coord, 10)));
     
-    const allX = coords.map((coord) => coord.x).sort((a, b) => a - b);
-    const allY = coords.map((coord) => coord.y).sort((a, b) => a - b);
+    const rect = getRectangle(coords);
 
-    const min = {
-        x: allX[0],
-        y: allY[0],
-    }, max = {
-        x: allX[allX.length - 1],
-        y: allY[allY.length - 1],
-    };
+    const infinites = [];
 
-    let vis = '';
-    const locations = [];
+    for (let x = rect[0][0]; x < rect[1][0]; x++) {
+        const dists = getDistances([ x, rect[0][1] ], coords).push(
+            ...getDistances([ x, rect[1][1] ], coords),
+        );
 
-    for (let { y } = min; y <= max.y; y++) {
-        for (let { x } = min; x <= max.x; x++) {
-            const dsts = [];
+        console.log(dists);
 
-            for (let index = 0; index < coords.length; index++) {
-                const dist = getDistance({ x, y }, coords[index]);
+        infinites.push(...dists.filter((d, i, a) => d.dist === a[0].dist)
+            .map((dist) => dist.index));
+    }
 
-                dsts.push({ index, dist });
-            }
+    for (let y = rect[0][1]; y < rect[1][1]; y++) {
+        const dists = getDistances([ rect[0][0], y ], coords).push(
+            ...getDistances([ rect[1][0], y ], coords),
+        );
 
-            dsts.sort((a, b) => a.dist - b.dist);
+        infinites.push(...dists.filter((d, i, a) => d.dist === a[0].dist)
+            .map((dist) => dist.index));
+    }
 
-            let location = { x, y };
+    const points = [];
+    for (let y = rect[0][1]; y < rect[1][1]; y++) {
+        for (let x = rect[0][0]; x < rect[1][0]; x++) {
+            const point = { loc: [ x, y ], index: -1 };
+            const dists = getDistances(point.loc, coords);
 
-            if (dsts[0].dist === dsts[1].dist)
-                location.index = -1;
-            else location.index = dsts[0].index;
-
-            vis += location.index === -1 ? '#' :
-                String.fromCharCode((!dsts[0].dist ? 65 : 97) + location.index);
+            if (dists[0].dist === dists[1].dist)
+                continue;
             
-            const coord = coords[dsts[0].index];
-            if (!(coord.x >= max.x || coord.y >= max.y) &&
-                !(coord.x <= min.x || coord.y <= min.y))
-            {
-                locations.push(location);
-            }
+            point.index = dists[0].index;
+
+            if (infinites.includes(point.index))
+                continue;
+            
+            points.push(point);
         }
-
-        vis += '\n';
     }
 
-    console.log(vis);
-
-    const areas = [];
-    for (const loc of locations) {
-        if (loc.index === -1)
-            continue;
-
-        areas[loc.index] = areas[loc.index] ? areas[loc.index] + 1 : 1;
-    }
-
-    return areas.sort((a, b) => b - a)[0];
+    return { points };
 };
 
 console.log(solve(rawExample));
-
-// console.log(getDistance({ x: 0, y: 0 }, { x: 0, y: 0 }))
