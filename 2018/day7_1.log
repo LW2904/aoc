@@ -1,0 +1,5 @@
+{"done":["c","a"],"available":["a","f"],"conditions":{"a":[],"f":[],"b":["a"],"d":["a"],"e":["b","d","f"]}}
+{"done":["c","a","b"],"available":["b","d","f"],"conditions":{"f":[],"b":[],"d":[],"e":["b","d","f"]}}
+{"done":["c","a","b","d"],"available":["d","f"],"conditions":{"f":[],"d":[],"e":["d","f"]}}
+{"done":["c","a","b","d","f"],"available":["f"],"conditions":{"f":[],"e":["f"]}}
+{"done":["c","a","b","d","f","e"],"available":["e"],"conditions":{"e":[]}}
